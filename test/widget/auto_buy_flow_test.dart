@@ -178,6 +178,29 @@ void main() {
 
       expect(find.text('Which days?'), findsOneWidget);
     });
+
+    testWidgets('the start date defaults to Today and opens a date picker',
+        (tester) async {
+      useTallScreen(tester);
+      await tester.pumpWidget(testApp(home: const AutoBuySetupScreen()));
+      await tester.pumpAndSettle();
+
+      // Defaults to "Today" until the customer picks a date.
+      expect(find.text('Starts on'), findsOneWidget);
+      expect(find.text('Today'), findsWidgets);
+
+      await tester.tap(find.text('Starts on'));
+      await tester.pumpAndSettle();
+
+      // The Material date picker is presented.
+      expect(find.byType(DatePickerDialog), findsOneWidget);
+      expect(find.text('Select date'), findsOneWidget);
+
+      // Cancelling leaves the schedule starting today.
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Today'), findsWidgets);
+    });
   });
 
   group('Auto-Buy list screen', () {

@@ -73,7 +73,10 @@ void main() {
       await settle(tester);
 
       expect(
-        find.text('Password reset is not part of this demo'),
+        find.text(
+          'Password resets require a connection to DataNaija servers. '
+          'Contact support to recover your account.',
+        ),
         findsOneWidget,
       );
     });

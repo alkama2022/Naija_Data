@@ -117,7 +117,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     setState(() => _page = 1);
                   } else {
                     appStore.setOnboardingSeen(true);
-                    appStore.setScreen(AppRoutes.signIn);
                     Navigator.of(context)
                         .pushReplacementNamed(AppRoutes.signIn);
                   }
@@ -131,7 +130,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: const Text('Skip'),
                 onPressed: () {
                   appStore.setOnboardingSeen(true);
-                  appStore.setScreen(AppRoutes.signIn);
                   Navigator.of(context).pushReplacementNamed(AppRoutes.signIn);
                 },
               ),

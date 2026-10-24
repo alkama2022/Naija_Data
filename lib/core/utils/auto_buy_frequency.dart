@@ -141,12 +141,6 @@ class AutoBuyFrequencies {
     return null;
   }
 
-  /// The label of a frequency key, falling back to a readable version of
-  /// the key itself.
-  static String labelOf(String key) {
-    return byKey(key)?.label ?? key;
-  }
-
   /// The minimum interval a custom schedule may use.
   static const int customIntervalMin = 1;
 

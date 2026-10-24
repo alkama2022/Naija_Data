@@ -35,11 +35,15 @@ class PillBadge extends StatelessWidget {
   PillConfig _config(String status) {
     switch (status) {
       case 'Successful':
+      case 'Active':
         return PillConfig(kPillSuccessBg, kPillSuccessFg);
       case 'Pending':
         return PillConfig(kPillPendingBg, kPillPendingFg);
       case 'Failed':
         return PillConfig(kPillFailedBg, kPillFailedFg);
+      case 'Paused':
+      case 'Skipped':
+        return PillConfig(kPillPendingBg, kPillPendingFg);
       default:
         return PillConfig(kPillSuccessBg, kPillSuccessFg);
     }

@@ -116,9 +116,6 @@ class AutoBuySchedule {
         anchorAt: anchorAt,
       );
 
-  /// The bundle description, e.g. `SME · 1GB - 30 Days`.
-  String get bundleLabel => '$planType · $planGb - $planDays';
-
   AutoBuySchedule copyWith({
     String? network,
     String? planType,

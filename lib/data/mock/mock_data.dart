@@ -6,6 +6,7 @@ import 'package:data_naija_app/data/models/notification.dart';
 import 'package:data_naija_app/data/models/referral.dart';
 import 'package:data_naija_app/data/models/transaction.dart';
 import 'package:data_naija_app/data/models/user.dart';
+import 'package:data_naija_app/data/models/virtual_account.dart';
 import 'package:flutter/material.dart';
 
 /// Sample data mirroring the prototype's hardcoded state.
@@ -25,7 +26,22 @@ class MockData {
     referralBonus: 450,
   );
 
+  static const String defaultAccountName = 'BBKDATA';
   static const String defaultAccountNumber = '0123456789';
+
+  /// Funding accounts shown below the wallet on Home.
+  static const List<VirtualAccountModel> virtualAccounts = [
+    VirtualAccountModel(
+      provider: 'Palmpay',
+      accountName: defaultAccountName,
+      accountNumber: '6684717385',
+    ),
+    VirtualAccountModel(
+      provider: 'Moniepoint',
+      accountName: defaultAccountName,
+      accountNumber: defaultAccountNumber,
+    ),
+  ];
 
   // ── Networks ────────────────────────────────────────────────────────
 
@@ -257,7 +273,6 @@ class MockData {
   static const int referralPct = 20;
   static const int referralCap = 5000;
   static const int referralMin = 100;
-  static const bool referralLife = true;
 }
 
 /// Configuration for a data plan type.

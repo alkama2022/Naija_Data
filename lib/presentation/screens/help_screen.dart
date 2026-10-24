@@ -1,4 +1,5 @@
 import 'package:data_naija_app/core/constants/app_constants.dart';
+import 'package:data_naija_app/core/utils/url_launcher_helper.dart';
 import 'package:data_naija_app/data/mock/mock_data.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_button.dart';
@@ -33,8 +34,14 @@ class _HelpScreenState extends State<HelpScreen> {
             Row(
               children: [
                 BackButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed(AppRoutes.profile),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context)
+                          .pushReplacementNamed(AppRoutes.profile);
+                    }
+                  },
                 ),
                 const SizedBox(width: 8),
                 const Text(
@@ -129,76 +136,90 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
               ),
             ] else ...[
-              AppCard(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Contact our team',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: kTextPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Reach us on WhatsApp or email: $kSupportContact',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: kTextMuted,
-                        height: 1.45,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    const WhatsAppSupportOption(),
-                    const SizedBox(height: 8),
-                    const WhatsAppChannelOption(),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(14),
-                color: const Color(0xFFE6F4EC),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Need more help?',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: kTextPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Our support team is here for you.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: kTextMuted,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    AppLinkButton(
-                      child: const Text('Get Help'),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'A support agent will reach out shortly',
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      AppCard(
+                        margin: EdgeInsets.zero,
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Contact our team',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: kTextPrimary,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                            const SizedBox(height: 6),
+                            Text(
+                              'Reach us on WhatsApp or email: $kSupportContact',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: kTextMuted,
+                                height: 1.45,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            const WhatsAppSupportOption(),
+                            const SizedBox(height: 8),
+                            const WhatsAppChannelOption(),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        color: const Color(0xFFE6F4EC),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Need more help?',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: kTextPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Our support team is here for you.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: kTextMuted,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            AppLinkButton(
+                              child: const Text('Get Help'),
+                              onPressed: () async {
+                                final ok = await UrlLauncher.contactSupport();
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      ok
+                                          ? 'Opening WhatsApp support...'
+                                          : 'Could not open WhatsApp. Check the installed apps.',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
             ],

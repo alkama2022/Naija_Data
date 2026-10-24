@@ -9,6 +9,7 @@ import 'package:data_naija_app/presentation/widgets/app_store.dart';
 import 'package:data_naija_app/presentation/widgets/chip_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Referral screen — campaign vs referrals tabs, bonus, code, friends.
 class ReferralScreen extends StatefulWidget {
@@ -37,8 +38,14 @@ class _ReferralScreenState extends State<ReferralScreen>
             Row(
               children: [
                 BackButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed(AppRoutes.profile),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context)
+                          .pushReplacementNamed(AppRoutes.profile);
+                    }
+                  },
                 ),
                 const SizedBox(width: 8),
                 const Text(
@@ -95,14 +102,17 @@ class _ReferralScreenState extends State<ReferralScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Referral bonus',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: kTextMuted,
+            const Flexible(
+              child: Text(
+                'Referral bonus',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: kTextMuted,
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             Text(
               formatNaira(bonus),
               style: const TextStyle(
@@ -222,13 +232,37 @@ class _ReferralScreenState extends State<ReferralScreen>
       const SizedBox(height: 14),
       AppButton(
         child: const Text('Refer a friend'),
-        onPressed: () {
+        onPressed: () async {
+        final message =
+            'Join me on DataNaija! Use my referral code $kReferralCode to earn bonuses. Download the app.';
+        final uri =
+            Uri.parse('https://wa.me/?text=${Uri.encodeComponent(message)}');
+        try {
+          final launched = await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
+          if (!launched) {
+            if (!mounted) return;
+            await Clipboard.setData(ClipboardData(text: message));
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Invite message copied to clipboard.'),
+              ),
+            );
+          }
+        } catch (_) {
+          if (!mounted) return;
+          await Clipboard.setData(ClipboardData(text: message));
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Your phone share menu opens here'),
+              content: Text('Invite message copied to clipboard.'),
             ),
           );
-        },
+        }
+      },
       ),
     ];
   }

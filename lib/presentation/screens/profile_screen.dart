@@ -1,4 +1,5 @@
 import 'package:data_naija_app/core/constants/app_constants.dart';
+import 'package:data_naija_app/core/utils/auth_service.dart';
 import 'package:data_naija_app/data/mock/mock_data.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_card.dart';
@@ -18,16 +19,30 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'Profile',
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w800,
-                    color: kTextPrimary,
+              Row(
+                children: [
+                  BackButton(
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.home,
+                          (route) => route.isFirst,
+                        );
+                      }
+                    },
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Profile',
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: kTextPrimary,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Padding(
@@ -112,22 +127,22 @@ class ProfileScreen extends StatelessWidget {
                       Navigator.of(context).pushNamed(AppRoutes.help);
                     }),
                     const Divider(height: 1),
-                    _menuRow('Account Settings', 'Manage your account settings',
-                        () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Account settings are not part of this demo',
-                          ),
-                        ),
-                      );
-                    }),
-                    const Divider(height: 1),
                     _menuRow('About DataNaija', 'DataNaija v1.0 (demo)', () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('DataNaija v1.0 (demo)'),
+                      showAboutDialog(
+                        context: context,
+                        applicationName: 'DataNaija',
+                        applicationVersion: '1.0.0+1',
+                        applicationIcon: Image.asset(
+                          'assets/images/app_mark.png',
+                          width: 48,
+                          height: 48,
                         ),
+                        children: const [
+                          Text(
+                            'Nigerian VTU mobile app frontend (design reference implementation). '
+                            'All data is locally simulated for demonstration purposes.',
+                          ),
+                        ],
                       );
                     }),
                   ],
@@ -139,8 +154,9 @@ class ProfileScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () {
                     appStore.setSignedIn(false);
-                    Navigator.of(context)
-                        .pushReplacementNamed(AppRoutes.signIn);
+                    AuthService.clearAuth();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.signIn, (route) => false);
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFC0352B),

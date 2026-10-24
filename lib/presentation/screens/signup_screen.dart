@@ -1,6 +1,10 @@
 import 'package:data_naija_app/core/constants/app_constants.dart';
+import 'package:data_naija_app/core/errors/app_failure.dart';
+import 'package:data_naija_app/core/utils/phone_validator.dart';
+import 'package:data_naija_app/data/services/api_service.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_button.dart';
+import 'package:data_naija_app/presentation/widgets/app_error_banner.dart';
 import 'package:data_naija_app/presentation/widgets/app_input.dart';
 import 'package:data_naija_app/presentation/widgets/app_link_button.dart';
 import 'package:data_naija_app/presentation/widgets/app_state_listener.dart';
@@ -20,6 +24,8 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -29,12 +35,67 @@ class _SignUpScreenState extends State<SignUpScreen>
     super.dispose();
   }
 
-  void _handleCreateAccount() {
-    // Remember the number the account was created with so the buy flow can
-    // prefill it.
-    appStore.setPhone(_emailController.text.trim());
-    appStore.setSignedIn(true);
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+  Future<void> _handleCreateAccount() async {
+    final name = _nameController.text.trim();
+    final identifier = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter your full name')),
+      );
+      return;
+    }
+
+    if (identifier.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter your email or phone number')),
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Enter a password with at least 6 characters')),
+      );
+      return;
+    }
+
+    final phone = identifier.contains('@') && !isValidNigerianPhone(identifier)
+        ? ''
+        : (isValidNigerianPhone(identifier) ? identifier : identifier);
+    final email = identifier.contains('@') ? identifier : '';
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final apiService = ApiService();
+      await apiService.signUp(
+        name,
+        isValidNigerianPhone(identifier) ? identifier : phone,
+        email,
+        password,
+      );
+      if (isValidNigerianPhone(identifier)) {
+        appStore.setPhone(identifier);
+      }
+      appStore.setSignedIn(true);
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      }
+    } catch (e) {
+      final failure = AppFailure.from(e);
+      if (mounted) {
+        setState(() => _errorMessage = failure.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -77,7 +138,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                 controller: _emailController,
                 label: 'Email or Phone Number',
                 hint: 'Enter your email or phone number',
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.emailAddress,
               ),
               AppInput(
                 controller: _passwordController,
@@ -94,20 +155,37 @@ class _SignUpScreenState extends State<SignUpScreen>
                 suffixOnTap: appStore.togglePasswordVisibility,
               ),
               const SizedBox(height: 22),
+              if (_errorMessage != null) ...[
+                AppErrorBanner(message: _errorMessage!),
+                const SizedBox(height: 12),
+              ],
               AppButton(
-                onPressed: _handleCreateAccount,
-                child: const Text('Create Account'),
+                onPressed: _isLoading ? null : _handleCreateAccount,
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text('Create Account'),
               ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Already have an account?',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: kTextMuted,
+                  const Flexible(
+                    child: Text(
+                      'Already have an account?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: kTextMuted,
+                      ),
                     ),
                   ),
                   AppLinkButton(

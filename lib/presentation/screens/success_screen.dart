@@ -1,6 +1,7 @@
 import 'package:data_naija_app/core/constants/app_constants.dart';
 import 'package:data_naija_app/core/utils/currency_formatter.dart';
 import 'package:data_naija_app/data/mock/mock_data.dart';
+import 'package:data_naija_app/data/models/transaction.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_button.dart';
 import 'package:data_naija_app/presentation/widgets/app_card.dart';
@@ -14,18 +15,37 @@ class SuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final net = MockData.networks.firstWhere(
-      (n) => n.name == appStore.selectedNetwork,
-    );
+    // The data flow reads the last purchase from the repository. The other
+    // services pass their transaction in so the receipt is always about the
+    // purchase that just completed.
+    final argument = ModalRoute.of(context)?.settings.arguments;
+    final transaction = argument is TransactionModel
+        ? argument
+        : appRepository.lastTransaction;
+
+    final isData = transaction == null || transaction.typeKey == 'd';
+    final isSwap = transaction?.typeKey == 'x';
+    final net = isData
+        ? MockData.networks.firstWhere(
+            (n) => n.name == appStore.selectedNetwork,
+          )
+        : null;
     final chosenText =
         '${appStore.dataType} · ${appStore.selectedGb} - ${appStore.selectedDays}';
     // The purchase is recorded before this screen is shown, so the receipt
     // shows the real reference and amount instead of inventing them.
-    final transaction = appRepository.lastTransaction;
     final priceText =
         formatNaira(transaction?.amount.abs() ?? appStore.selectedPrice);
     final ref = transaction?.ref ?? '—';
     final phone = transaction?.phone ?? appStore.phone;
+    final heading = isSwap ? 'Swap Successful' : 'Purchase Successful';
+    final description = isSwap
+        ? '${formatNaira(transaction!.amount)} has been added to your wallet.'
+        : isData
+            ? 'You have successfully purchased ${appStore.selectedGb} data for ${net!.name}.'
+            : 'Your ${transaction.title.toLowerCase()} was successful.';
+    final detailLabel = isData ? 'Data Bundle' : 'Service';
+    final detailValue = isData ? chosenText : transaction.subtitle;
 
     return Scaffold(
       backgroundColor: kBackground,
@@ -50,9 +70,9 @@ class SuccessScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text(
-                  'Purchase Successful',
-                  style: TextStyle(
+                Text(
+                  heading,
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: kTextPrimary,
@@ -60,7 +80,7 @@ class SuccessScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'You have successfully purchased ${appStore.selectedGb} data for ${net.name}.',
+                  description,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -74,8 +94,8 @@ class SuccessScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      _kvRow('Phone Number', phone),
-                      _kvRow('Data Bundle', chosenText),
+                      _kvRow(isData ? 'Phone Number' : 'Recipient', phone),
+                      _kvRow(detailLabel, detailValue),
                       _kvRow('Amount', priceText),
                       _kvRow('Reference ID', ref),
                     ],
@@ -100,7 +120,10 @@ class SuccessScreen extends StatelessWidget {
                 AppLinkButton(
                   fullWidth: true,
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.home,
+                      (route) => route.isFirst,
+                    );
                   },
                   child: const Text('Back to Home'),
                 ),
@@ -126,12 +149,17 @@ class SuccessScreen extends StatelessWidget {
               color: kTextMuted,
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: kTextPrimary,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: kTextPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

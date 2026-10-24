@@ -16,6 +16,8 @@ class AppInput extends StatelessWidget {
     this.suffixIcon,
     this.suffixOnTap,
     this.maxLength,
+    this.minLines,
+    this.maxLines,
   });
 
   final TextEditingController controller;
@@ -28,6 +30,8 @@ class AppInput extends StatelessWidget {
   final Widget? suffixIcon;
   final VoidCallback? suffixOnTap;
   final int? maxLength;
+  final int? minLines;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +49,8 @@ class AppInput extends StatelessWidget {
             ),
           ),
         ],
-        SizedBox(
-          height: kInputMinHeight,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: kInputMinHeight),
           child: TextField(
             controller: controller,
             obscureText: obscureText,
@@ -54,6 +58,11 @@ class AppInput extends StatelessWidget {
             inputFormatters: inputFormatters,
             onChanged: onChanged,
             maxLength: maxLength,
+            minLines: minLines,
+            // TextField's default is one line. Passing null turns the field
+            // into a growing multiline field, which is invalid when it is
+            // obscured (password fields), so keep the default explicit.
+            maxLines: maxLines ?? 1,
             style: const TextStyle(
               fontSize: kFontSizeButton,
               fontWeight: FontWeight.w500,

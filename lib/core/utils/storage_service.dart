@@ -14,9 +14,6 @@ class StorageService {
     _prefs ??= await SharedPreferences.getInstance();
   }
 
-  /// Whether [init] has completed.
-  static bool get isReady => _prefs != null;
-
   static SharedPreferences get _p {
     final prefs = _prefs;
     if (prefs == null) {
@@ -106,12 +103,5 @@ class StorageService {
     final prefs = _prefs;
     if (prefs == null) return;
     await prefs.setString(key, value);
-  }
-
-  /// Removes a value.
-  static Future<void> remove(String key) async {
-    final prefs = _prefs;
-    if (prefs == null) return;
-    await prefs.remove(key);
   }
 }

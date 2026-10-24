@@ -40,22 +40,6 @@ class AutoBuyExecution {
   /// The attempt as a friendly local label.
   String get slotLabel => AutoBuyScheduleEngine.formatSlotLabel(scheduledFor);
 
-  /// The status pill colour key used by the design system.
-  String get statusKey {
-    switch (status) {
-      case 'Successful':
-        return 'p-s';
-      case 'Pending':
-        return 'p-p';
-      case 'Failed':
-        return 'p-f';
-      case 'Skipped':
-        return 'p-p';
-      default:
-        return 'p-s';
-    }
-  }
-
   AutoBuyExecution copyWith({
     String? status,
     int? attempt,

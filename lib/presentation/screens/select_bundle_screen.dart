@@ -184,8 +184,8 @@ class _SelectBundleScreenState extends State<SelectBundleScreen>
                   return Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: SizedBox(
-                      height: 56,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 56),
                       child: ElevatedButton(
                         onPressed: () {
                           appStore.selectPlan(plan.gb, plan.days, plan.price);
@@ -209,13 +209,14 @@ class _SelectBundleScreenState extends State<SelectBundleScreen>
                         child: Row(
                           children: [
                             SizedBox(
-                              width: 100,
+                              width: 90,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     plan.gb,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w700,
@@ -223,6 +224,7 @@ class _SelectBundleScreenState extends State<SelectBundleScreen>
                                   ),
                                   Text(
                                     plan.days,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
@@ -233,12 +235,15 @@ class _SelectBundleScreenState extends State<SelectBundleScreen>
                               ),
                             ),
                             const Spacer(),
-                            Text(
-                              formatNaira(plan.price),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF0B7A4B),
+                            Flexible(
+                              child: Text(
+                                formatNaira(plan.price),
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF0B7A4B),
+                                ),
                               ),
                             ),
                             if (plan.isHot) ...[

@@ -97,24 +97,22 @@ class _TransactionsScreenState extends State<TransactionsScreen>
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: kPagePadding, vertical: 4),
                       itemCount: filtered.length,
                       itemBuilder: (context, i) {
                         final t = filtered[i];
-                        return Column(
-                          children: [
-                            TransactionItem(
-                              transaction: t,
-                              onTap: () {
-                                Navigator.of(context).pushNamed(
-                                  AppRoutes.transactionDetail,
-                                  arguments: t,
-                                );
-                              },
-                            ),
-                            if (i < filtered.length - 1)
-                              const SizedBox(height: 8),
-                          ],
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: TransactionItem(
+                            transaction: t,
+                            onTap: () {
+                              Navigator.of(context).pushNamed(
+                                AppRoutes.transactionDetail,
+                                arguments: t,
+                              );
+                            },
+                          ),
                         );
                       },
                     ),

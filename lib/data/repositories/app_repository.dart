@@ -3,8 +3,6 @@ import 'dart:convert';
 
 import 'package:data_naija_app/core/utils/storage_service.dart';
 import 'package:data_naija_app/data/mock/mock_data.dart';
-import 'package:data_naija_app/data/models/faq.dart';
-import 'package:data_naija_app/data/models/network.dart';
 import 'package:data_naija_app/data/models/notification.dart';
 import 'package:data_naija_app/data/models/referral.dart';
 import 'package:data_naija_app/data/models/transaction.dart';
@@ -40,20 +38,9 @@ class AppRepository extends ChangeNotifier {
   int get referralBonus => _referralBonus;
   TransactionModel? get lastTransaction => _lastTransaction;
   List<TransactionModel> get transactions => List.unmodifiable(_transactions);
-  List<NetworkModel> get networks => MockData.networks;
-  Map<String, DataTypeConfig> get dataTypes => MockData.dataTypes;
-  List<PopularBundle> get popularBundles => MockData.popularBundles;
   List<NotificationModel> get notifications =>
       List.unmodifiable(_notifications);
-  List<FaqItem> get faqs => MockData.faqs;
   List<ReferralFriend> get friends => MockData.friends;
-
-  TransactionModel? findTransaction(int id) {
-    for (final transaction in _transactions) {
-      if (transaction.id == id) return transaction;
-    }
-    return null;
-  }
 
   // ── Persistence ─────────────────────────────────────────────────────
 
@@ -188,9 +175,60 @@ class AppRepository extends ChangeNotifier {
     return transaction;
   }
 
-  /// Simulates wallet funding. Adds to balance and prepends a transaction.
-  TransactionModel fundWallet(int amount, String method) {
+  /// Simulates buying any of the non-data services (airtime, cable,
+  /// electricity, bulk SMS, edu pins or a recharge pin).
+  ///
+  /// The caller supplies the wording shown in the transaction history.
+  /// Returns `null` when the wallet cannot cover [amount].
+  TransactionModel? purchaseService({
+    required String title,
+    required String subtitle,
+    required int amount,
+    required String phone,
+    required String typeKey,
+  }) {
+    if (_balance < amount) return null;
+
     final transaction = _record(
+      title: title,
+      subtitle: subtitle,
+      date: 'Today · Just now',
+      amount: -amount,
+      phone: phone,
+      typeKey: typeKey,
+    );
+
+    _balance -= amount;
+    _commit();
+    return transaction;
+  }
+
+  /// Simulates Swarp: converts airtime to wallet cash.
+  ///
+  /// The airtime is spent on the network, not from this wallet, so the
+  /// customer only receives [payout]. It is recorded as a credit.
+  TransactionModel swapAirtimeToWallet({
+    required String network,
+    required String phone,
+    required int airtimeValue,
+    required int payout,
+  }) {
+    final transaction = _record(
+      title: 'Swarp',
+      subtitle: '$network airtime to wallet',
+      date: 'Today · Just now',
+      amount: payout,
+      phone: phone,
+      typeKey: 'x',
+    );
+
+    _balance += payout;
+    _commit();
+    return transaction;
+  }
+
+  /// Simulates wallet funding. Adds to balance and prepends a transaction.
+  TransactionModel fundWallet(int amount, String method) {    final transaction = _record(
       title: 'Wallet Funding',
       subtitle: method,
       date: 'Today · Just now',
@@ -247,9 +285,6 @@ class AppRepository extends ChangeNotifier {
     _notifications[index] = _notifications[index].copyWith(isRead: true);
     _commit();
   }
-
-  int get unreadNotificationCount =>
-      _notifications.where((n) => !n.isRead).length;
 
   // ── Auto-Buy support ────────────────────────────────────────────────
 

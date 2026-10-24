@@ -20,72 +20,87 @@ class TransactionItem extends StatelessWidget {
     final isCredit = transaction.amount > 0;
     final amountColor = isCredit ? kAmountPositive : kAmountNegative;
 
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      visualDensity: VisualDensity(horizontal: 0, vertical: -2),
+    // A ListTile constrains its trailing widget to a fixed height, which
+    // clips the amount + status pill when the system text size is raised.
+    // Laying the row out directly lets every column size to its content.
+    return InkWell(
       onTap: onTap,
-      leading: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: transaction.iconColor,
-          shape: BoxShape.circle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: transaction.iconColor,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  transaction.letter,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    transaction.title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: kTextPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    transaction.subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: kTextMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    transaction.date,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: kTextMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${isCredit ? '+' : '-'}${formatNaira(transaction.amount)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: amountColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                PillBadge(status: transaction.status),
+              ],
+            ),
+          ],
         ),
-        child: Center(
-          child: Text(
-            transaction.letter,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            transaction.title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: kTextPrimary,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            transaction.subtitle,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: kTextMuted,
-            ),
-          ),
-        ],
-      ),
-      subtitle: Text(
-        transaction.date,
-        style: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: kTextMuted,
-        ),
-      ),
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '${isCredit ? '+' : '-'}${formatNaira(transaction.amount)}',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: amountColor,
-            ),
-          ),
-          const SizedBox(height: 4),
-          PillBadge(status: transaction.status),
-        ],
       ),
     );
   }

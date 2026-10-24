@@ -49,68 +49,95 @@ class AppButton extends StatelessWidget {
         sideColor = enabled ? theme.primaryColor : kBorderMedium;
     }
 
-    final button = SizedBox(
-      width: width,
-      height: height,
-      child: ElevatedButton(
-        onPressed: enabled ? onPressed : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          elevation: 0,
-          side: sideColor != null
-              ? BorderSide(width: 1.5, color: sideColor)
-              : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kBorderRadiusButton),
-          ),
-        ),
-        child: child,
-      ),
-    );
+    // Avoid forcing infinite width inside Row (e.g. code-copy buttons).
 
-    if (variant == ButtonVariant.outline) {
-      return button;
-    }
-    return button;
+
+    // Use LayoutBuilder to detect bounded constraints (full width in Column,
+    // intrinsic in Row).
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (width != null) {
+          return ConstrainedBox(
+            constraints: BoxConstraints(minHeight: height),
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: ElevatedButton(
+                onPressed: enabled ? onPressed : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: backgroundColor,
+                  foregroundColor: foregroundColor,
+                  elevation: 0,
+                  side: sideColor != null
+                      ? BorderSide(width: 1.5, color: sideColor)
+                      : null,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusButton),
+                  ),
+                  minimumSize: Size(0, height),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                child: child,
+              ),
+            ),
+          );
+        }
+
+        final bool bounded =
+            constraints.hasBoundedWidth && constraints.maxWidth.isFinite;
+        if (bounded) {
+          return ConstrainedBox(
+            constraints: BoxConstraints(minHeight: height),
+            child: SizedBox(
+              width: double.infinity,
+              height: height,
+              child: ElevatedButton(
+                onPressed: enabled ? onPressed : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: backgroundColor,
+                  foregroundColor: foregroundColor,
+                  elevation: 0,
+                  side: sideColor != null
+                      ? BorderSide(width: 1.5, color: sideColor)
+                      : null,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusButton),
+                  ),
+                  minimumSize: Size(0, height),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                child: child,
+              ),
+            ),
+          );
+        }
+
+        return ConstrainedBox(
+          constraints: BoxConstraints(minHeight: height),
+          child: SizedBox(
+            height: height,
+            child: ElevatedButton(
+              onPressed: enabled ? onPressed : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: backgroundColor,
+                foregroundColor: foregroundColor,
+                elevation: 0,
+                side: sideColor != null
+                    ? BorderSide(width: 1.5, color: sideColor)
+                    : null,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(kBorderRadiusButton),
+                ),
+                minimumSize: Size(0, height),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
 enum ButtonVariant { primary, primaryWhite, outline }
-
-/// Small ghost button (`.o` in the prototype) with outline styling.
-class AppGhostButton extends StatelessWidget {
-  const AppGhostButton({
-    super.key,
-    required this.child,
-    this.onPressed,
-    this.fullWidth = false,
-    this.height = kSmallButtonMinHeight,
-  });
-
-  final Widget child;
-  final VoidCallback? onPressed;
-  final bool fullWidth;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final button = OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Theme.of(context).primaryColor,
-        side: const BorderSide(width: 1.5, color: kBorderMedium),
-        minimumSize: Size(double.infinity, height),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadiusButton),
-        ),
-      ),
-      child: child,
-    );
-
-    if (fullWidth) {
-      return SizedBox(width: double.infinity, child: button);
-    }
-    return button;
-  }
-}

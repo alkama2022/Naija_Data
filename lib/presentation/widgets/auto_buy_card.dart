@@ -209,11 +209,17 @@ class AutoBuyCard extends StatelessWidget {
         icon: Icon(icon, size: 16, color: color),
         label: Text(
           label,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             color: color,
           ),
+        ),
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          minimumSize: const Size(0, 44),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ),
     );

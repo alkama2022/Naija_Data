@@ -6,6 +6,7 @@ import 'package:data_naija_app/presentation/widgets/app_button.dart';
 import 'package:data_naija_app/presentation/widgets/app_card.dart';
 import 'package:data_naija_app/presentation/widgets/app_link_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Transaction Details screen — full details of a single transaction.
 class TransactionDetailScreen extends StatelessWidget {
@@ -30,8 +31,14 @@ class TransactionDetailScreen extends StatelessWidget {
             Row(
               children: [
                 BackButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed(AppRoutes.transactions),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context)
+                          .pushReplacementNamed(AppRoutes.transactions);
+                    }
+                  },
                 ),
                 const SizedBox(width: 8),
                 const Text(
@@ -115,11 +122,26 @@ class TransactionDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   AppButton(
-                    child: const Text('Share Receipt'),
-                    onPressed: () {
+                    child: const Text('Copy Receipt'),
+                    onPressed: () async {
+                      final tx = ModalRoute.of(context)!.settings.arguments
+                          as TransactionModel?;
+                      if (tx == null) return;
+                      final buffer = StringBuffer()
+                        ..writeln('DataNaija Receipt')
+                        ..writeln('Status: ${tx.status}')
+                        ..writeln('Title: ${tx.title}')
+                        ..writeln('Description: ${tx.subtitle}')
+                        ..writeln('Phone: ${tx.phone}')
+                        ..writeln('Amount: ${formatNaira(tx.amount)}')
+                        ..writeln('Reference: ${tx.ref}')
+                        ..writeln('Date: ${tx.date}');
+                      await Clipboard.setData(
+                          ClipboardData(text: buffer.toString()));
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Receipt ready to share'),
+                          content: Text('Receipt copied to clipboard'),
                         ),
                       );
                     },
@@ -127,8 +149,14 @@ class TransactionDetailScreen extends StatelessWidget {
                   const SizedBox(height: 10),
                   AppLinkButton(
                     fullWidth: true,
-                    onPressed: () => Navigator.of(context)
-                        .pushReplacementNamed(AppRoutes.transactions),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context)
+                            .pushReplacementNamed(AppRoutes.transactions);
+                      }
+                    },
                     child: const Text('Back'),
                   ),
                 ],
@@ -154,12 +182,17 @@ class TransactionDetailScreen extends StatelessWidget {
               color: kTextMuted,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: valueColor ?? kTextPrimary,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: valueColor ?? kTextPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

@@ -55,8 +55,16 @@ class _AutoBuyListScreenState extends State<AutoBuyListScreen>
             Row(
               children: [
                 BackButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed(AppRoutes.home),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (route) => route.isFirst,
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(width: 8),
                 const AppLogo(size: 32),

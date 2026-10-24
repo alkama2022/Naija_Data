@@ -12,6 +12,7 @@ class WalletCard extends StatelessWidget {
     this.hideBalance = false,
     this.onToggleVisibility,
     this.onFund,
+    this.onReferral,
     this.accountNumber,
     this.onCopyAccount,
   });
@@ -20,6 +21,7 @@ class WalletCard extends StatelessWidget {
   final bool hideBalance;
   final VoidCallback? onToggleVisibility;
   final VoidCallback? onFund;
+  final VoidCallback? onReferral;
   final String? accountNumber;
   final VoidCallback? onCopyAccount;
 
@@ -44,14 +46,18 @@ class WalletCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Wallet Balance',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: kMutedOnWallet,
-                      fontWeight: FontWeight.w500,
-                      fontSize: kFontSizeLabel,
-                    ),
+              Flexible(
+                child: Text(
+                  'Wallet Balance',
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: kMutedOnWallet,
+                        fontWeight: FontWeight.w500,
+                        fontSize: kFontSizeLabel,
+                      ),
+                ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: onToggleVisibility,
                 child: Icon(
@@ -88,6 +94,22 @@ class WalletCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onReferral != null) ...[
+                const SizedBox(width: 10),
+                Expanded(
+                  child: AppButton(
+                    variant: ButtonVariant.primaryWhite,
+                    onPressed: onReferral,
+                    child: const Text(
+                      'Referral',
+                      style: TextStyle(
+                        fontSize: kFontSizeButton,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           if (accountNumber != null) ...[
@@ -102,14 +124,18 @@ class WalletCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '$kMockBankName · $accountNumber',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: kTextOnAccent,
+                  Expanded(
+                    child: Text(
+                      '$kMockBankName · $accountNumber',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: kTextOnAccent,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   AppLinkButton(
                     onPressed: onCopyAccount,
                     child: const Text(

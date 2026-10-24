@@ -1,6 +1,10 @@
 import 'package:data_naija_app/core/constants/app_constants.dart';
+import 'package:data_naija_app/core/errors/app_failure.dart';
+import 'package:data_naija_app/core/utils/url_launcher_helper.dart';
+import 'package:data_naija_app/data/services/api_service.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_button.dart';
+import 'package:data_naija_app/presentation/widgets/app_error_banner.dart';
 import 'package:data_naija_app/presentation/widgets/app_input.dart';
 import 'package:data_naija_app/presentation/widgets/app_link_button.dart';
 import 'package:data_naija_app/presentation/widgets/app_state_listener.dart';
@@ -21,6 +25,8 @@ class _SignInScreenState extends State<SignInScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _rememberMe = true;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -29,10 +35,48 @@ class _SignInScreenState extends State<SignInScreen>
     super.dispose();
   }
 
-  void _handleSignIn() {
-    appStore.setPhone(_emailController.text);
-    appStore.setSignedIn(true);
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+  Future<void> _handleSignIn() async {
+    final identifier = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (identifier.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter your email or phone number')),
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Enter a password with at least 6 characters')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final apiService = ApiService();
+      final phone = identifier.contains('@') ? identifier.split('@')[0] : identifier;
+      final result = await apiService.signIn(phone, password);
+      appStore.setPhone(result['user']?['phone'] ?? identifier);
+      appStore.setSignedIn(true);
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      }
+    } catch (e) {
+      final failure = AppFailure.from(e);
+      if (mounted) {
+        setState(() => _errorMessage = failure.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -104,7 +148,7 @@ class _SignInScreenState extends State<SignInScreen>
                 controller: _emailController,
                 label: 'Email or Phone Number',
                 hint: 'Enter your email or phone number',
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.emailAddress,
               ),
               AppInput(
                 controller: _passwordController,
@@ -136,12 +180,53 @@ class _SignInScreenState extends State<SignInScreen>
                   AppLinkButton(
                     child: const Text('Forgot Password?'),
                     onPressed: () {
-                      // Demo-only: not implemented
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Password reset is not part of this demo',
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
+                          title: const Text(
+                            'Reset password',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          content: const Text(
+                            'Password resets require a connection to DataNaija servers. '
+                            'Contact support to recover your account.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: kTextMuted,
+                              height: 1.45,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.of(dialogContext).pop();
+                                final ok = await UrlLauncher.contactSupport();
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      ok
+                                          ? 'Opening WhatsApp support...'
+                                          : 'Could not open WhatsApp. Check the installed apps.',
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: const Text('Contact support'),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -149,15 +234,83 @@ class _SignInScreenState extends State<SignInScreen>
                 ],
               ),
               const SizedBox(height: 14),
+              if (_errorMessage != null) ...[
+                AppErrorBanner(message: _errorMessage!),
+                const SizedBox(height: 12),
+              ],
               AppButton(
-                onPressed: _handleSignIn,
-                child: const Text('Sign In'),
+                onPressed: _isLoading ? null : _handleSignIn,
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text('Sign In'),
               ),
               const SizedBox(height: 10),
               // Fingerprint button (`.o` outline button)
               OutlinedButton(
-                onPressed: () {
-                  appStore.setScreen(AppRoutes.home);
+                onPressed: () async {
+                  if (appStore.fingerprintEnabled) {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        title: const Text(
+                          'Confirm with fingerprint',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        content: const Text(
+                          'Touch the sensor to sign in.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: kTextMuted,
+                            height: 1.45,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(true),
+                            child: const Text('Use fingerprint'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed != true) return;
+                    if (!mounted) return;
+                  } else {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Enable fingerprint in Profile > Security after signing in.',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (!mounted) return;
+                  if (!context.mounted) return;
+                  appStore.setSignedIn(true);
+                  if (!context.mounted) return;
                   Navigator.of(context).pushReplacementNamed(AppRoutes.home);
                 },
                 style: OutlinedButton.styleFrom(
@@ -173,7 +326,12 @@ class _SignInScreenState extends State<SignInScreen>
                   children: [
                     Icon(Icons.fingerprint, size: 22, color: kAccent),
                     SizedBox(width: 8),
-                    Text('Sign in with fingerprint'),
+                    Flexible(
+                      child: Text(
+                        'Sign in with fingerprint',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -32,8 +32,16 @@ class _WalletScreenState extends State<WalletScreen>
             Row(
               children: [
                 BackButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed(AppRoutes.home),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (route) => route.isFirst,
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(width: 8),
                 const Text(
@@ -105,18 +113,22 @@ class _WalletScreenState extends State<WalletScreen>
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 100),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: kPagePadding, vertical: 4),
                       itemCount: recentTransactions.take(5).length,
                       itemBuilder: (context, i) {
                         final transaction = recentTransactions[i];
-                        return TransactionItem(
-                          transaction: transaction,
-                          onTap: () {
-                            Navigator.of(context).pushNamed(
-                              AppRoutes.transactionDetail,
-                              arguments: transaction,
-                            );
-                          },
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: TransactionItem(
+                            transaction: transaction,
+                            onTap: () {
+                              Navigator.of(context).pushNamed(
+                                AppRoutes.transactionDetail,
+                                arguments: transaction,
+                              );
+                            },
+                          ),
                         );
                       },
                     ),

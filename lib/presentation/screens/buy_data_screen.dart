@@ -52,8 +52,14 @@ class _BuyDataScreenState extends State<BuyDataScreen>
             Row(
               children: [
                 BackButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushReplacementNamed(AppRoutes.home),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context)
+                          .pushReplacementNamed(AppRoutes.home);
+                    }
+                  },
                 ),
                 const SizedBox(width: 8),
                 const Text(
@@ -66,76 +72,86 @@ class _BuyDataScreenState extends State<BuyDataScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 26),
-            // Stepper
-            Row(
-              children: [
-                _stepDot(1, true),
-                _stepLine(),
-                _stepDot(2, false),
-                _stepLine(),
-                _stepDot(3, false),
-              ],
-            ),
-            const SizedBox(height: 14),
-            const Text(
-              'Select Network',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: kTextPrimary,
-              ),
-            ),
-            const SizedBox(height: 14),
-            SizedBox(
-              height: 110,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: MockData.networks.length,
-                itemBuilder: (context, i) {
-                  final net = MockData.networks[i];
-                  final isSelected = net.name == appStore.selectedNetwork;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: NetworkChip(
-                      network: net.name,
-                      color: net.bgColor,
-                      textColor: net.fgColor,
-                      abbreviation: net.abbreviation,
-                      isSelected: isSelected,
-                      onTap: () {
-                        appStore.setSelectedNetwork(net.name);
-                      },
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: kPagePadding),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 26),
+                    // Stepper
+                    Row(
+                      children: [
+                        _stepDot(1, true),
+                        _stepLine(),
+                        _stepDot(2, false),
+                        _stepLine(),
+                        _stepDot(3, false),
+                      ],
                     ),
-                  );
-                },
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Select Network',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: kTextPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      height: 110,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: MockData.networks.length,
+                        itemBuilder: (context, i) {
+                          final net = MockData.networks[i];
+                          final isSelected =
+                              net.name == appStore.selectedNetwork;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: NetworkChip(
+                              network: net.name,
+                              color: net.bgColor,
+                              textColor: net.fgColor,
+                              abbreviation: net.abbreviation,
+                              isSelected: isSelected,
+                              onTap: () {
+                                appStore.setSelectedNetwork(net.name);
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    AppInput(
+                      controller: _phoneController,
+                      label: 'Phone Number',
+                      hint: 'Enter phone number',
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(11),
+                      ],
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'e.g. 08012345678',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: kTextMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 18),
-            AppInput(
-              controller: _phoneController,
-              label: 'Phone Number',
-              hint: 'Enter phone number',
-              keyboardType: TextInputType.phone,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(11),
-              ],
-              // Only rebuild locally while typing. The store is updated when
-              // the customer moves on, so a keystroke does not fan out to
-              // every listener in the app.
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'e.g. 08012345678',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: kTextMuted,
-              ),
-            ),
-            const Spacer(),
             Padding(
               padding: const EdgeInsets.all(kPagePadding),
               child: AppButton(

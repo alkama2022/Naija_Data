@@ -30,7 +30,6 @@ class _SplashScreenState extends State<SplashScreen> {
       } else {
         next = AppRoutes.onboarding;
       }
-      appStore.setScreen(next);
       Navigator.of(context).pushReplacementNamed(next);
     });
   }
@@ -54,7 +53,27 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: kTextMuted,
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.4,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Loading...',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: kTextMuted,
+              ),
+            ),
+            const SizedBox(height: 28),
             const Text(
               'Buy Data · Buy Airtime · Fund Wallet',
               style: TextStyle(

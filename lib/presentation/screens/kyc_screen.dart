@@ -43,7 +43,11 @@ class _KycScreenState extends State<KycScreen> {
         content: Text('Verified. Your account number is ready.'),
       ),
     );
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    }
   }
 
   String get _label {
@@ -70,12 +74,14 @@ class _KycScreenState extends State<KycScreen> {
                         .pushReplacementNamed(AppRoutes.home),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Verify your identity',
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      color: kTextPrimary,
+                  const Expanded(
+                    child: Text(
+                      'Verify your identity',
+                      style: TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w800,
+                        color: kTextPrimary,
+                      ),
                     ),
                   ),
                 ],

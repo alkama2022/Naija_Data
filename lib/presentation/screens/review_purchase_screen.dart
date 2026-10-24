@@ -145,12 +145,17 @@ class _ReviewPurchaseScreenState extends State<ReviewPurchaseScreen>
               color: isTotal ? kTextPrimary : kTextMuted,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isTotal ? const Color(0xFF0B7A4B) : kTextPrimary,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isTotal ? const Color(0xFF0B7A4B) : kTextPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

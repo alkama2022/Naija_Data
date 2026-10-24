@@ -41,7 +41,20 @@ class _AutoBuyDetailScreenState extends State<AutoBuyDetailScreen>
               const SizedBox(height: 10),
               Row(
                 children: [
-                  BackButton(onPressed: () => Navigator.of(context).pop()),
+                  BackButton(
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.autoBuyList,
+                          (route) =>
+                              route.settings.name == AppRoutes.autoBuyList ||
+                              route.isFirst,
+                        );
+                      }
+                    },
+                  ),
                   const SizedBox(width: 8),
                   const Text(
                     'Auto-Buy',
@@ -85,7 +98,20 @@ class _AutoBuyDetailScreenState extends State<AutoBuyDetailScreen>
             const SizedBox(height: 10),
             Row(
               children: [
-                BackButton(onPressed: () => Navigator.of(context).pop()),
+                BackButton(
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.autoBuyList,
+                        (route) =>
+                            route.settings.name == AppRoutes.autoBuyList ||
+                            route.isFirst,
+                      );
+                    }
+                  },
+                ),
                 const SizedBox(width: 8),
                 const AppLogo(size: 32),
                 const SizedBox(width: 8),

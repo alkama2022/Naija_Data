@@ -5,7 +5,6 @@ import 'package:data_naija_app/core/constants/app_constants.dart';
 import 'package:data_naija_app/core/utils/storage_service.dart';
 import 'package:data_naija_app/data/repositories/app_repository.dart';
 import 'package:data_naija_app/data/repositories/auto_buy_repository.dart';
-import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:flutter/foundation.dart';
 
 /// Global singleton store instance.
@@ -37,17 +36,6 @@ final Listenable appStateListenable = Listenable.merge([
 ///
 /// This is intentionally minimal — no external state-management package.
 class AppStore extends ChangeNotifier {
-  // ── Navigation ──────────────────────────────────────────────────────
-
-  String _screen = AppRoutes.splash;
-  String get screen => _screen;
-
-  void setScreen(String route) {
-    if (_screen == route) return;
-    _screen = route;
-    notifyListeners();
-  }
-
   // ── Auth / session ──────────────────────────────────────────────────
 
   bool _isSignedIn = false;
@@ -84,8 +72,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFingerprint() => setFingerprintEnabled(!_fingerprintEnabled);
-
   // ── Balance visibility ──────────────────────────────────────────────
 
   bool _balanceHidden = false;
@@ -105,25 +91,10 @@ class AppStore extends ChangeNotifier {
   // ── Theme accent ────────────────────────────────────────────────────
 
   int _accentIndex = 0;
-  int get accentIndex => _accentIndex;
 
   /// Only changes when the accent changes, so `MaterialApp` can rebuild the
   /// theme without rebuilding on every unrelated store update.
   final ValueNotifier<int> accentIndexNotifier = ValueNotifier<int>(0);
-
-  void setAccentIndex(int index) {
-    if (index < 0 ||
-        index >= kThemeAccentOptions.length ||
-        index == _accentIndex) {
-      return;
-    }
-    _accentIndex = index;
-    accentIndexNotifier.value = index;
-    unawaited(StorageService.setThemeAccent(
-      _colorToHex(kThemeAccentOptions[index]),
-    ));
-    notifyListeners();
-  }
 
   // ── Onboarding ──────────────────────────────────────────────────────
 
@@ -165,7 +136,6 @@ class AppStore extends ChangeNotifier {
   ///
   /// Test-only helper — the store is otherwise changed by the screens.
   void reset() {
-    _screen = AppRoutes.splash;
     _isSignedIn = false;
     _kycVerified = false;
     _fingerprintEnabled = false;
@@ -182,10 +152,6 @@ class AppStore extends ChangeNotifier {
     _fundAmount = '1000';
     _paymentMethod = 'Card Payment';
     _obscurePassword = true;
-    _rememberMe = true;
-    _kycType = 'BVN';
-    _kycId = '';
-    _kycConsent = false;
     notifyListeners();
   }
 
@@ -267,24 +233,7 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _rememberMe = true;
-  bool get rememberMe => _rememberMe;
-
-  void toggleRememberMe() {
-    _rememberMe = !_rememberMe;
-    notifyListeners();
-  }
-
   // ── KYC form ────────────────────────────────────────────────────────
-
-  String _kycType = 'BVN';
-  String get kycType => _kycType;
-
-  void setKycType(String type) {
-    if (_kycType == type) return;
-    _kycType = type;
-    notifyListeners();
-  }
 
   String _kycId = '';
   String get kycId => _kycId;
@@ -292,14 +241,6 @@ class AppStore extends ChangeNotifier {
   void setKycId(String value) {
     if (_kycId == value) return;
     _kycId = value;
-    notifyListeners();
-  }
-
-  bool _kycConsent = false;
-  bool get kycConsent => _kycConsent;
-
-  void toggleKycConsent() {
-    _kycConsent = !_kycConsent;
     notifyListeners();
   }
 }

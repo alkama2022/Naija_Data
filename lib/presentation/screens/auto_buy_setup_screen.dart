@@ -51,6 +51,18 @@ class _AutoBuySetupScreenState extends State<AutoBuySetupScreen> {
 
   bool get _isEditing => widget.existing != null;
 
+  /// The chosen start date as the repository expects it, or null.
+  ///
+  /// Only the calendar day matters, so the time is dropped and the value
+  /// is pinned to UTC to match how the schedules are stored.
+  String? get _startDateString {
+    final date = _startDate;
+    if (date == null) return null;
+    return formatAutoBuyDateString(
+      DateTime.utc(date.year, date.month, date.day),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -112,15 +124,7 @@ class _AutoBuySetupScreenState extends State<AutoBuySetupScreen> {
       interval: resolved.interval,
       daysOfWeek: _daysOfWeek.toList(),
       timeOfDay: _timeOfDay,
-      startDate: _startDate == null
-          ? null
-          : formatAutoBuyDateString(
-              DateTime.utc(
-                _startDate!.year,
-                _startDate!.month,
-                _startDate!.day,
-              ),
-            ),
+      startDate: _startDateString,
     );
     final spec = AutoBuyScheduleSpec(
       frequency: _frequencyKey,
@@ -613,8 +617,10 @@ class _AutoBuySetupScreenState extends State<AutoBuySetupScreen> {
   }
 
   Widget _buildWeekdayPicker() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      alignment: WrapAlignment.spaceBetween,
       children: List.generate(7, (i) {
         final day = i + 1;
         final isSelected = _daysOfWeek.contains(day);
@@ -909,15 +915,7 @@ class _AutoBuySetupScreenState extends State<AutoBuySetupScreen> {
           unit: resolved.unit,
           daysOfWeek: _daysOfWeek.toList(),
           timeOfDay: _timeOfDay,
-          startDate: _startDate == null
-              ? null
-              : formatAutoBuyDateString(
-                  DateTime.utc(
-                    _startDate!.year,
-                    _startDate!.month,
-                    _startDate!.day,
-                  ),
-                ),
+          startDate: _startDateString,
         );
       } else {
         await autoBuyRepository.create(
@@ -932,15 +930,7 @@ class _AutoBuySetupScreenState extends State<AutoBuySetupScreen> {
           unit: resolved.unit,
           daysOfWeek: _daysOfWeek.toList(),
           timeOfDay: _timeOfDay,
-          startDate: _startDate == null
-              ? null
-              : formatAutoBuyDateString(
-                  DateTime.utc(
-                    _startDate!.year,
-                    _startDate!.month,
-                    _startDate!.day,
-                  ),
-                ),
+          startDate: _startDateString,
         );
       }
 
@@ -949,7 +939,10 @@ class _AutoBuySetupScreenState extends State<AutoBuySetupScreen> {
       if (!mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil(
         AppRoutes.autoBuyList,
-        (route) => route.settings.name == AppRoutes.autoBuyList,
+        (route) =>
+            route.settings.name == AppRoutes.autoBuyList ||
+            route.isFirst ||
+            route.settings.name == AppRoutes.home,
       );
     } catch (error) {
       if (!mounted) return;
@@ -968,17 +961,19 @@ class _AutoBuySetupScreenState extends State<AutoBuySetupScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusCard),
         ),
-        title: const Text(
-          'Auto-Buy activated',
-          style: TextStyle(
+        title: Text(
+          _isEditing ? 'Auto-Buy updated' : 'Auto-Buy activated',
+          style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
             color: kTextPrimary,
           ),
         ),
-        content: const Text(
-          'Your bundle will be bought automatically on the schedule you '
-          'chose. We will let you know after every purchase.',
+        content: Text(
+          _isEditing
+              ? 'Your automatic data purchase schedule has been updated.'
+              : 'Your bundle will be bought automatically on the schedule you '
+                  'chose. We will let you know after every purchase.',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,

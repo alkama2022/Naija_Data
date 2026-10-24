@@ -15,11 +15,6 @@ class SecurityScreen extends StatefulWidget {
 
 class _SecurityScreenState extends State<SecurityScreen>
     with AppStateListener<SecurityScreen> {
-  final _links = const [
-    ['***', 'Change Password', 'Change your account password'],
-    ['PIN', 'Transaction Passcode', 'Set or change your 4-digit passcode'],
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,8 +27,14 @@ class _SecurityScreenState extends State<SecurityScreen>
               Row(
                 children: [
                   BackButton(
-                    onPressed: () => Navigator.of(context)
-                        .pushReplacementNamed(AppRoutes.profile),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context)
+                            .pushReplacementNamed(AppRoutes.profile);
+                      }
+                    },
                   ),
                   const SizedBox(width: 8),
                   const Text(
@@ -51,62 +52,6 @@ class _SecurityScreenState extends State<SecurityScreen>
                 padding: const EdgeInsets.all(0),
                 child: Column(
                   children: [
-                    ..._links.map((r) {
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 4,
-                        ),
-                        leading: Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE6F4EC),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              r[0],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w800,
-                                color: kAccent,
-                              ),
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          r[1],
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: kTextPrimary,
-                          ),
-                        ),
-                        subtitle: Text(
-                          r[2],
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: kTextMuted,
-                          ),
-                        ),
-                        trailing: const Text(
-                          '›',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: kTextMuted,
-                          ),
-                        ),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${r[1]} is not part of this demo'),
-                            ),
-                          );
-                        },
-                      );
-                    }),
                     ...[
                       {
                         'ab': 'FP',

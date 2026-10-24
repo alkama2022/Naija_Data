@@ -54,8 +54,14 @@ class _FundWalletScreenState extends State<FundWalletScreen>
               Row(
                 children: [
                   BackButton(
-                    onPressed: () => Navigator.of(context)
-                        .pushReplacementNamed(AppRoutes.wallet),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context)
+                            .pushReplacementNamed(AppRoutes.wallet);
+                      }
+                    },
                   ),
                   const SizedBox(width: 8),
                   const Text(
@@ -243,8 +249,11 @@ class _FundWalletScreenState extends State<FundWalletScreen>
                           setState(() {});
                         },
                         child: Container(
-                          height: 44,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          constraints: const BoxConstraints(minHeight: 44),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             border: Border.all(
                               width: 1.5,
@@ -291,8 +300,8 @@ class _FundWalletScreenState extends State<FundWalletScreen>
                 final isSelected = appStore.paymentMethod == method;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: SizedBox(
-                    height: 56,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 56),
                     child: ElevatedButton(
                       onPressed: () {
                         appStore.setPaymentMethod(method);
@@ -318,18 +327,21 @@ class _FundWalletScreenState extends State<FundWalletScreen>
                           borderRadius: BorderRadius.circular(14),
                         ),
                         alignment: Alignment.centerLeft,
+                        minimumSize: const Size(0, 56),
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             child: Text(
                               method,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
                             isSelected ? 'Selected' : '',
                             style: const TextStyle(
@@ -359,8 +371,12 @@ class _FundWalletScreenState extends State<FundWalletScreen>
                                   'Wallet funded with ${formatNaira(_amount)}'),
                             ),
                           );
-                          Navigator.of(context)
-                              .pushReplacementNamed(AppRoutes.wallet);
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            Navigator.of(context)
+                                .pushReplacementNamed(AppRoutes.wallet);
+                          }
                         }
                       : null,
                   child: const Text('Continue'),

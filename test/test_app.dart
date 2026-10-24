@@ -1,5 +1,7 @@
 // Test helper: wraps screens in MaterialApp with all routes registered.
+import 'package:data_naija_app/core/theme/app_theme.dart';
 import 'package:data_naija_app/data/models/auto_buy_schedule.dart';
+import 'package:data_naija_app/data/models/service.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_store.dart';
 import 'package:data_naija_app/presentation/screens/auto_buy_detail_screen.dart';
@@ -18,6 +20,7 @@ import 'package:data_naija_app/presentation/screens/referral_screen.dart';
 import 'package:data_naija_app/presentation/screens/review_purchase_screen.dart';
 import 'package:data_naija_app/presentation/screens/security_screen.dart';
 import 'package:data_naija_app/presentation/screens/select_bundle_screen.dart';
+import 'package:data_naija_app/presentation/screens/service_purchase_screen.dart';
 import 'package:data_naija_app/presentation/screens/signin_screen.dart';
 import 'package:data_naija_app/presentation/screens/signup_screen.dart';
 import 'package:data_naija_app/presentation/screens/success_screen.dart';
@@ -35,6 +38,7 @@ Widget testApp({Widget? home}) {
     listenable: appStateListenable,
     builder: (context, child) {
       return MaterialApp(
+        theme: buildTheme(),
         home: home,
         routes: {
           AppRoutes.onboarding: (_) => const OnboardingScreen(),
@@ -42,6 +46,35 @@ Widget testApp({Widget? home}) {
           AppRoutes.signUp: (_) => const SignUpScreen(),
           AppRoutes.home: (_) => const HomeScreen(),
           AppRoutes.buyData: (_) => const BuyDataScreen(),
+          AppRoutes.servicePurchase: (context) => ServicePurchaseScreen(
+                kind: ModalRoute.of(context)?.settings.arguments
+                        as ServiceKind? ??
+                    ServiceKind.airtime,
+              ),
+          AppRoutes.buyAirtime: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.airtime,
+              ),
+          AppRoutes.cableTv: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.cable,
+              ),
+          AppRoutes.electricity: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.electricity,
+              ),
+          AppRoutes.bulkSms: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.bulkSms,
+              ),
+          AppRoutes.eduPins: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.eduPin,
+              ),
+          AppRoutes.examPins: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.eduPin,
+              ),
+          AppRoutes.rechargePin: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.rechargePin,
+              ),
+          AppRoutes.airtimeSwap: (_) => const ServicePurchaseScreen(
+                kind: ServiceKind.swarp,
+              ),
           AppRoutes.selectBundle: (_) => const SelectBundleScreen(),
           AppRoutes.reviewPurchase: (_) => const ReviewPurchaseScreen(),
           AppRoutes.processing: (_) => const ProcessingScreen(),
@@ -56,7 +89,6 @@ Widget testApp({Widget? home}) {
           AppRoutes.security: (_) => const SecurityScreen(),
           AppRoutes.referral: (_) => const ReferralScreen(),
           AppRoutes.kyc: (_) => const KycScreen(),
-          AppRoutes.autoBuy: (_) => const AutoBuyListScreen(),
           AppRoutes.autoBuyList: (_) => const AutoBuyListScreen(),
           AppRoutes.autoBuySetup: (context) => AutoBuySetupScreen(
                 existing: ModalRoute.of(context)?.settings.arguments

@@ -54,6 +54,34 @@ lib/
 | 21 | Auto-Buy (manage rules) | `/autobuy/list` |
 | 22 | New / Edit Auto-Buy | `/autobuy/new` |
 | 23 | Auto-Buy details + history | `/autobuy/detail` |
+| 24 | Airtime | `/airtime` |
+| 25 | Cable TV | `/cable` |
+| 26 | Electricity | `/electricity` |
+| 27 | Bulk SMS | `/bulksms` |
+| 28 | Edu Pins | `/edupins` |
+| 29 | Recharge Pin | `/rechargepin` |
+| 30 | Swarp (airtime → wallet) | `/airtimeswap` |
+
+## VTU Services
+
+The Home **Services** grid opens the other VTU products. They share one
+`ServicePurchaseScreen`, driven by the `ServiceKind` enum, so the catalogue
+decides which providers, packages and fields each service shows:
+
+| Service | Details |
+|---|---|
+| Airtime | MTN, Airtel, Glo or 9mobile top-up with quick amounts from ₦100 |
+| Cable TV | DSTV, GOtv, Startimes or Showmax packages, renewed by smartcard number |
+| Electricity | Prepaid or postpaid meter payment for the major distribution companies |
+| Bulk SMS | 100–10,000 SMS bundles, one sender ID and a message for many recipients |
+| Edu Pins | WAEC, NECO, NABTEB and JAMB pins sent to the customer's number |
+| Recharge Pin | Network recharge PIN delivered by SMS |
+| Swarp | Converts airtime to wallet cash at 85% of the airtime value |
+
+Each purchase deducts the wallet balance and appears in the transaction
+history with its own icon. Swarp credits the wallet instead and shows a
+"Swap Successful" receipt. All providers, packages and prices are local demo
+data in `lib/data/mock/service_catalog.dart`.
 
 ## Auto-Buy
 
@@ -93,7 +121,10 @@ same set of expectations so the preview and the server agree.
 
 Colors, typography, spacing, and components replicate the prototype's design:
 - **Primary accent:** `#0A7A4C` (green, themeable)
-- **Typography:** Plus Jakarta Sans (500/600/700/800)
+- **Typography:** Plus Jakarta Sans (`500/600/700/800`) is requested as the
+  text theme's font family; because no font asset is bundled the platform
+  default is used as a graceful fallback (matching the prototype's
+  `'Plus Jakarta Sans', system-ui, sans-serif` stack)
 - **Currency:** Nigerian Naira (₦), `en-NG` locale
 - **Phone validation:** Nigerian mobile format `/^0[789][01]\d{8}$/`
 - **Brand artwork:** `assets/images/app_mark.png` (app mark) and
@@ -103,8 +134,8 @@ Colors, typography, spacing, and components replicate the prototype's design:
 ## Dependencies (minimal)
 
 - `shared_preferences` — local persistence (onboarding, theme, KYC, auth state)
-- `google_fonts` — Plus Jakarta Sans typeface
 - `intl` — Naira currency formatting
+- `url_launcher` — opening WhatsApp support links
 
 No backend, payment, or analytics dependencies.
 
@@ -142,6 +173,7 @@ The following are simulated locally (no backend):
 - Sign in / sign up
 - KYC verification
 - Data purchase (deducts balance, creates transaction)
+- Airtime, Cable TV, Electricity, Bulk SMS, Edu Pins, Recharge Pin and Swarp
 - Wallet funding (bank transfer, card/USSD, quick amounts)
 - Referral bonus tracking
 - Fingerprint toggle

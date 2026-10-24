@@ -20,9 +20,4 @@ class ReferralFriend {
     }
     return name.substring(0, min(2, name.length)).toUpperCase();
   }
-
-  /// Pill style class equivalent based on status.
-  String get pillClass {
-    return status == 'Active' ? 'pill p-s' : 'pill p-p';
-  }
 }

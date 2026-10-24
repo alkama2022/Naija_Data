@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 // ── Colors ─────────────────────────────────────────────────────────────
 
 const Color kAccent = Color(0xFF0A7A4C); // primary green (--g)
-const Color kAccentDark = Color(0xFF09663F); // wallet gradient end
 const Color kAccentAlt1 = Color(0xFF0F766E); // theme option
 const Color kAccentAlt2 = Color(0xFF1D4ED8); // theme option
 const Color kAccentAlt3 = Color(0xFFB45309); // theme option
@@ -31,7 +30,6 @@ const Color kMutedOnWallet = Color(0xFFCFEBDD);
 
 const Color kBorderLight = Color(0xFFE3EAE6);
 const Color kBorderMedium = Color(0xFFD5DED9);
-const Color kDivider = Color(0xFFE9EFEB);
 const Color kCardBorder = Color(0xFFE3EAE6);
 
 const Color kWalletGradientStart = Color(0xFF0A7A4C);
@@ -47,18 +45,12 @@ const Color kPillFailedFg = Color(0xFF9B1C12);
 const Color kAmountPositive = Color(0xFF0B7A4B);
 const Color kAmountNegative = Color(0xFF10231A);
 
-const Color kToastBg = Color(0xFF10231A);
 const Color kScrimBg = Color(0x8C10231A); // rgba(16,35,26,0.55)
 const Color kSheetBg = Color(0xFFFFFFFF);
 
 // ── Dimensions ─────────────────────────────────────────────────────────
 
-const double kScreenWidth = 390.0; // prototype artboard width
-const double kScreenHeight = 844.0; // prototype artboard height
-
 const double kPagePadding = 20.0;
-const double kTopPadding = 26.0;
-const double kBottomPadding = 96.0;
 
 const double kBorderRadiusCard = 18.0;
 const double kBorderRadiusButton = 14.0;
@@ -66,26 +58,18 @@ const double kBorderRadiusInput = 12.0;
 const double kBorderRadiusPill = 999.0;
 const double kBorderRadiusWallet = 20.0;
 const double kBorderRadiusSheet = 26.0;
-const double kBorderRadiusCircle = 50.0;
 
 const double kButtonMinHeight = 50.0;
 const double kInputMinHeight = 50.0;
-const double kSmallButtonMinHeight = 44.0;
-const double kChipMinHeight = 44.0;
 
 const double kNavBarHeight = 72.0;
-const double kToastBottom = 88.0;
-const double kFabBottom = 88.0;
 
-const double kIconSize = 22.0;
 const double kBigIconSize = 44.0;
 
 // ── Typography (Plus Jakarta Sans) ────────────────────────────────────
 
 const String kFontFamily = 'Plus Jakarta Sans';
 
-const double kFontSizeCaption = 11.0;
-const double kFontSizeSmall = 12.0;
 const double kFontSizeLabel = 13.0;
 const double kFontSizeBody = 14.0;
 const double kFontSizeButton = 15.0;
@@ -93,22 +77,14 @@ const double kFontSizeHeading = 19.0;
 const double kFontSizeH1 = 25.0;
 
 const FontWeight kWeightMedium = FontWeight.w500;
-const FontWeight kWeightSemiBold = FontWeight.w600;
 const FontWeight kWeightBold = FontWeight.w700;
 const FontWeight kWeightExtraBold = FontWeight.w800;
 
 // ── Strings ────────────────────────────────────────────────────────────
 
-const String kAppName = 'DataNaija';
-const String kDefaultUserName = 'Chinedu';
-const String kDefaultUserFullName = 'Chinedu Okafor';
-const String kDefaultUserEmail = 'chinedu@example.com';
-const String kDefaultBalance = '5000';
-const String kMockAccountNumber = '0123456789';
 const String kMockBankName = '[BANK NAME]';
 const String kReferralCode = 'CHINEDU12';
 const String kSupportContact = '[SUPPORT CONTACT]';
-const String kCurrencySymbol = '₦';
 
 // ── WhatsApp support ────────────────────────────────────────────────────
 

@@ -75,6 +75,36 @@ void main() {
     });
   });
 
+  group('calendar date strings', () {
+    test('format and parse round-trip a calendar day', () {
+      for (final date in [
+        DateTime.utc(2026, 1, 1),
+        DateTime.utc(2026, 10, 15),
+        DateTime.utc(2026, 12, 31),
+      ]) {
+        final encoded = formatAutoBuyDateString(date);
+        final decoded = parseAutoBuyDateString(encoded);
+        expect(decoded, isNotNull, reason: encoded);
+        expect(decoded!.year, date.year);
+        expect(decoded.month, date.month);
+        expect(decoded.day, date.day);
+      }
+    });
+
+    test('format drops any time of day', () {
+      expect(
+        formatAutoBuyDateString(DateTime.utc(2026, 10, 15, 23, 59)),
+        '2026-10-15',
+      );
+    });
+
+    test('parse rejects malformed and impossible dates', () {
+      expect(parseAutoBuyDateString('2026-13-01'), isNull);
+      expect(parseAutoBuyDateString('2026-02-30'), isNull);
+      expect(parseAutoBuyDateString('not-a-date'), isNull);
+    });
+  });
+
   group('resolveAnchor', () {
     test('uses the requested start date and time', () {
       final anchor = AutoBuyScheduleEngine.resolveAnchor(
