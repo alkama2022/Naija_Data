@@ -38,6 +38,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
   _BootstrapStatus _status = _BootstrapStatus.loading;
   String _errorMessage = '';
   bool _starting = false;
+  bool _retrying = false;
   bool _localReady = false;
 
   ConnectivityService get _connectivity =>
@@ -54,6 +55,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
     // initialisation (and a second set of backend calls).
     if (_starting) return;
     _starting = true;
+    _retrying = true;
 
     if (mounted) {
       setState(() {
@@ -134,6 +136,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       });
     } finally {
       _starting = false;
+      _retrying = false;
     }
   }
 
@@ -151,6 +154,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
         content = RetryView(
           message: AppFailure.noInternetMessage,
           onRetry: _start,
+          retrying: _retrying,
         );
       case _BootstrapStatus.failed:
         content = RetryView(
@@ -158,6 +162,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
           message: _errorMessage,
           icon: Icons.cloud_off_rounded,
           onRetry: _start,
+          retrying: _retrying,
         );
       case _BootstrapStatus.ready:
         content = const LoadingView();

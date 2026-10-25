@@ -13,7 +13,11 @@ import 'package:flutter/material.dart';
 
 /// Sign up screen — full name, email/phone, password.
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  const SignUpScreen({super.key, this.apiService});
+
+  /// Injectable API service. Defaults to the app-wide [ApiService] instance;
+  /// tests pass a stub so the sign up flow never touches the network.
+  final ApiService? apiService;
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -26,6 +30,13 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  late final ApiService _apiService;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiService = widget.apiService ?? ApiService();
+  }
 
   @override
   void dispose() {
@@ -72,7 +83,7 @@ class _SignUpScreenState extends State<SignUpScreen>
       _errorMessage = null;
     });
     try {
-      final apiService = ApiService();
+      final apiService = _apiService;
       await apiService.signUp(
         name,
         isValidNigerianPhone(identifier) ? identifier : phone,

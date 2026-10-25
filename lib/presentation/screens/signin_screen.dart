@@ -14,7 +14,11 @@ import 'package:flutter/material.dart';
 
 /// Sign in screen — email/phone + password, remember me, fingerprint, sign up link.
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({super.key, this.apiService});
+
+  /// Injectable API service. Defaults to the app-wide [ApiService] instance;
+  /// tests pass a stub so the sign in flow never touches the network.
+  final ApiService? apiService;
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -27,6 +31,13 @@ class _SignInScreenState extends State<SignInScreen>
   bool _rememberMe = true;
   bool _isLoading = false;
   String? _errorMessage;
+  late final ApiService _apiService;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiService = widget.apiService ?? ApiService();
+  }
 
   @override
   void dispose() {
@@ -59,7 +70,7 @@ class _SignInScreenState extends State<SignInScreen>
       _errorMessage = null;
     });
     try {
-      final apiService = ApiService();
+      final apiService = _apiService;
       final phone = identifier.contains('@') ? identifier.split('@')[0] : identifier;
       final result = await apiService.signIn(phone, password);
       appStore.setPhone(result['user']?['phone'] ?? identifier);
