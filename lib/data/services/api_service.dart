@@ -284,13 +284,76 @@ class ApiService {
     );
   }
 
-  Future<List<dynamic>> getTransactions() async {
+  /// Lists the signed-in customer's transactions.
+  ///
+  /// The backend returns a bare JSON array of the customer's transactions
+  /// (newest first) and accepts `status` and `q` filters:
+  /// `GET /api/wallet/transactions?status=All&query=`.
+  ///
+  /// The body is a bare array, and [ApiService._decodeMap] wraps it under
+  /// the `data` key, so the list is read from there.
+  Future<List<dynamic>> getTransactions({
+    String status = 'All',
+    String query = '',
+  }) async {
+    final uri = Uri.parse('${AppConfig.apiUrl}/wallet/transactions').replace(
+      queryParameters: {
+        'status': status,
+        'q': query,
+      },
+    );
     final data = await _getObject(
-      Uri.parse('${AppConfig.apiUrl}/wallet/transactions'),
+      uri,
       failureMessage: 'Failed to get transactions',
     );
-    final transactions = data['transactions'];
+    final transactions = data['data'];
     return transactions is List ? transactions : const <dynamic>[];
+  }
+
+  /// Returns a single transaction by id.
+  ///
+  /// The backend scopes the lookup to the authenticated user, so a customer
+  /// can only ever read their own transaction.
+  Future<Map<String, dynamic>> getTransactionById(String id) {
+    return _getObject(
+      Uri.parse('${AppConfig.apiUrl}/transactions/$id'),
+      failureMessage: 'Failed to get transaction',
+    );
+  }
+
+  /// Submits a transaction report (support ticket).
+  ///
+  /// The backend verifies the transaction belongs to the authenticated user
+  /// before persisting the report.
+  Future<Map<String, dynamic>> reportTransaction({
+    required String transactionId,
+    required String category,
+    String? message,
+  }) async {
+    final headers = await _getHeaders();
+    final response = await _send(
+      () => _client.post(
+        Uri.parse('${AppConfig.apiUrl}/transactions/report'),
+        headers: headers,
+        body: jsonEncode({
+          'transactionId': transactionId,
+          'category': category,
+          'message': message,
+        }),
+      ),
+    );
+
+    final data = _decodeMap(response);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return data;
+    }
+
+    throw _failureFromResponse(
+      response,
+      data,
+      fallback: 'Failed to report transaction',
+      authenticated: true,
+    );
   }
 
   Future<List<dynamic>> getNetworks() async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /// Represents a single transaction record.
 ///
@@ -18,6 +19,35 @@ class TransactionModel {
   /// 'r' = recharge pin, 'x' = Swarp (airtime to wallet).
   final String typeKey;
 
+  /// The backend transaction UUID, present for transactions loaded from
+  /// the API. The display reference (`ref`) is the human-readable
+  /// transaction id the customer receives.
+  final String? serverId;
+
+  /// When the backend recorded the transaction.
+  final DateTime? createdAt;
+
+  /// Balance before the transaction was applied, when the backend provided it.
+  final int? previousBalance;
+
+  /// Balance after the transaction was applied, when the backend provided it.
+  final int? newBalance;
+
+  /// Kind of movement: purchase, credit, debit, refund, reversal.
+  final String? transactionType;
+
+  /// How the money moved: wallet, bank transfer, card payment, etc.
+  final String? paymentMethod;
+
+  /// The upstream provider reference, when known.
+  final String? providerRef;
+
+  /// Fee charged for the transaction, in Naira, when any was applied.
+  final int? fees;
+
+  /// Failure or reversal details, when the transaction did not complete cleanly.
+  final String? failureDetails;
+
   const TransactionModel({
     required this.id,
     required this.title,
@@ -28,7 +58,77 @@ class TransactionModel {
     required this.phone,
     required this.ref,
     required this.typeKey,
+    this.serverId,
+    this.createdAt,
+    this.previousBalance,
+    this.newBalance,
+    this.transactionType,
+    this.paymentMethod,
+    this.providerRef,
+    this.fees,
+    this.failureDetails,
   });
+
+  /// Builds a transaction from a backend JSON row.
+  ///
+  /// The backend owns the numbers; the client only maps them. Fields the
+  /// backend does not provide stay null so screens never invent values.
+  factory TransactionModel.fromBackend(Map<String, dynamic> json) {
+    return TransactionModel(
+      id: 0,
+      title: json['title'] as String? ?? '',
+      subtitle: json['subtitle'] as String? ?? '',
+      date: json['date']?.toString() ?? '',
+      amount: (json['amount'] as num?)?.toInt() ?? 0,
+      status: json['status'] as String? ?? 'Successful',
+      phone: json['phone'] as String? ?? '-',
+      ref: json['ref'] as String? ?? '',
+      typeKey: json['typeKey'] as String? ?? 'd',
+      serverId: json['id'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString())
+          : null,
+      previousBalance: (json['previousBalance'] as num?)?.toInt(),
+      newBalance: (json['newBalance'] as num?)?.toInt(),
+      transactionType: json['transactionType'] as String?,
+      paymentMethod: json['paymentMethod'] as String?,
+      providerRef: json['providerRef'] as String?,
+      fees: (json['fees'] as num?)?.toInt(),
+      failureDetails: json['failureDetails'] as String?,
+    );
+  }
+
+  /// Human readable type label for the icon key.
+  String get typeLabel {
+    switch (typeKey) {
+      case 'a':
+        return 'Airtime';
+      case 'w':
+        return 'Wallet';
+      case 'c':
+        return 'Cable TV';
+      case 'e':
+        return 'Electricity';
+      case 's':
+        return 'Bulk SMS';
+      case 'p':
+        return 'Edu PIN';
+      case 'r':
+        return 'Recharge PIN';
+      case 'x':
+        return 'Swarp';
+      default:
+        return 'Data';
+    }
+  }
+
+  /// Human readable transaction date/time.
+  String get formattedDate {
+    final dateTime = createdAt ??
+        (date.isNotEmpty ? DateTime.tryParse(date) : null);
+    if (dateTime == null) return date;
+    return DateFormat('d MMM yyyy, h:mm a').format(dateTime);
+  }
 
   /// Returns the display letter for the icon.
   String get letter {

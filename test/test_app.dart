@@ -1,7 +1,12 @@
 // Test helper: wraps screens in MaterialApp with all routes registered.
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:data_naija_app/core/theme/app_theme.dart';
+import 'package:data_naija_app/core/utils/connectivity_service.dart';
 import 'package:data_naija_app/data/models/auto_buy_schedule.dart';
 import 'package:data_naija_app/data/models/service.dart';
+import 'package:data_naija_app/data/services/api_service.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_store.dart';
 import 'package:data_naija_app/presentation/screens/auto_buy_detail_screen.dart';
@@ -28,6 +33,87 @@ import 'package:data_naija_app/presentation/screens/transaction_detail_screen.da
 import 'package:data_naija_app/presentation/screens/transactions_screen.dart';
 import 'package:data_naija_app/presentation/screens/wallet_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class _TestHttpClient extends http.BaseClient {
+  final Future<http.StreamedResponse> Function(Uri) handler;
+
+  _TestHttpClient(this.handler);
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async =>
+      handler(request.url);
+}
+
+class _TestConnectivity extends ConnectivityService {
+  @override
+  Future<bool> hasConnection({bool force = false}) async => true;
+}
+
+Future<http.StreamedResponse> _testTransactions(Uri uri) async {
+  if (uri.path.contains('/wallet/transactions')) {
+    return http.StreamedResponse(
+      Stream<Uint8List>.value(
+        Uint8List.fromList(
+          utf8.encode(
+            jsonEncode(<Map<String, dynamic>>[
+              {
+                'id': 'tx-1',
+                'title': 'Data Purchase',
+                'subtitle': 'MTN 1GB',
+                'amount': -1000,
+                'status': 'Successful',
+                'phone': '08012345678',
+                'ref': 'DN123456789',
+                'typeKey': 'd',
+                'createdAt': '2025-04-25T14:15:00.000Z',
+              },
+              {
+                'id': 'tx-2',
+                'title': 'Airtime Purchase',
+                'subtitle': 'Airtel',
+                'amount': -500,
+                'status': 'Failed',
+                'phone': '08098765432',
+                'ref': 'DN123456742',
+                'typeKey': 'a',
+                'createdAt': '2025-04-24T11:20:00.000Z',
+              },
+            ]),
+          ),
+        ),
+      ),
+      200,
+      headers: <String, String>{'content-type': 'application/json'},
+    );
+  }
+
+  if (uri.path.contains('/wallet/balance')) {
+    return http.StreamedResponse(
+      Stream<Uint8List>.value(
+        Uint8List.fromList(
+          utf8.encode(jsonEncode(<String, dynamic>{
+            'balance': 5000,
+            'balanceHidden': false,
+          })),
+        ),
+      ),
+      200,
+      headers: <String, String>{'content-type': 'application/json'},
+    );
+  }
+
+  return http.StreamedResponse(
+    Stream<Uint8List>.value(Uint8List.fromList(utf8.encode(jsonEncode(<String, dynamic>{})))),
+    404,
+    headers: <String, String>{'content-type': 'application/json'},
+  );
+}
+
+final ApiService testApi = ApiService.withClient(
+  _TestHttpClient(_testTransactions),
+  connectivity: _TestConnectivity(),
+);
 
 /// Builds the app the way `main.dart` does.
 ///
@@ -79,9 +165,9 @@ Widget testApp({Widget? home}) {
           AppRoutes.reviewPurchase: (_) => const ReviewPurchaseScreen(),
           AppRoutes.processing: (_) => const ProcessingScreen(),
           AppRoutes.success: (_) => const SuccessScreen(),
-          AppRoutes.wallet: (_) => const WalletScreen(),
+          AppRoutes.wallet: (_) => WalletScreen(apiService: testApi),
           AppRoutes.fundWallet: (_) => const FundWalletScreen(),
-          AppRoutes.transactions: (_) => const TransactionsScreen(),
+          AppRoutes.transactions: (_) => TransactionsScreen(apiService: testApi),
           AppRoutes.transactionDetail: (_) => const TransactionDetailScreen(),
           AppRoutes.notifications: (_) => const NotificationsScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),
