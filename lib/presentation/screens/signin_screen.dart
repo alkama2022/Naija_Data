@@ -7,6 +7,7 @@ import 'package:data_naija_app/presentation/widgets/app_button.dart';
 import 'package:data_naija_app/presentation/widgets/app_error_banner.dart';
 import 'package:data_naija_app/presentation/widgets/app_input.dart';
 import 'package:data_naija_app/presentation/widgets/app_link_button.dart';
+import 'package:data_naija_app/presentation/widgets/app_logo.dart';
 import 'package:data_naija_app/presentation/widgets/app_state_listener.dart';
 import 'package:data_naija_app/presentation/widgets/app_store.dart';
 import 'package:data_naija_app/presentation/widgets/checkbox_row.dart';
@@ -104,35 +105,9 @@ class _SignInScreenState extends State<SignInScreen>
               Center(
                 child: Column(
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: kAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'D',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'DataNaija',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w800,
-                        color: kTextPrimary,
-                        letterSpacing: -0.02,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
+                    // Official brand lockup: app mark + "Data Naija" wordmark.
+                    const AppLogo(size: 96, variant: LogoVariant.lockup),
+                    const SizedBox(height: 16),
                     const Text(
                       'Welcome Back',
                       style: TextStyle(

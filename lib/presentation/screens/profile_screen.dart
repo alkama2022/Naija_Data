@@ -3,6 +3,7 @@ import 'package:data_naija_app/core/utils/auth_service.dart';
 import 'package:data_naija_app/data/mock/mock_data.dart';
 import 'package:data_naija_app/presentation/routes/app_routes.dart';
 import 'package:data_naija_app/presentation/widgets/app_card.dart';
+import 'package:data_naija_app/presentation/widgets/app_logo.dart';
 import 'package:data_naija_app/presentation/widgets/app_store.dart';
 import 'package:flutter/material.dart';
 
@@ -132,11 +133,7 @@ class ProfileScreen extends StatelessWidget {
                         context: context,
                         applicationName: 'DataNaija',
                         applicationVersion: '1.0.0+1',
-                        applicationIcon: Image.asset(
-                          'assets/images/app_mark.png',
-                          width: 48,
-                          height: 48,
-                        ),
+                        applicationIcon: const AppLogo(size: 48),
                         children: const [
                           Text(
                             'Nigerian VTU mobile app frontend (design reference implementation). '

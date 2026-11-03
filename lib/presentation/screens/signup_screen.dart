@@ -7,6 +7,7 @@ import 'package:data_naija_app/presentation/widgets/app_button.dart';
 import 'package:data_naija_app/presentation/widgets/app_error_banner.dart';
 import 'package:data_naija_app/presentation/widgets/app_input.dart';
 import 'package:data_naija_app/presentation/widgets/app_link_button.dart';
+import 'package:data_naija_app/presentation/widgets/app_logo.dart';
 import 'package:data_naija_app/presentation/widgets/app_state_listener.dart';
 import 'package:data_naija_app/presentation/widgets/app_store.dart';
 import 'package:flutter/material.dart';
@@ -119,7 +120,8 @@ class _SignUpScreenState extends State<SignUpScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
+              const AppLogo(size: 96, variant: LogoVariant.lockup),
+              const SizedBox(height: 18),
               const Text(
                 'Create your account',
                 style: TextStyle(
