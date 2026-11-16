@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Brand artwork for DataNaija.
 ///
-/// Two variants are available:
-///  - [LogoVariant.mark]   — the green app mark (square). Used for the
-///                            launcher icon, the home header and small
-///                            placements.
-///  - [LogoVariant.lockup] — the mark plus the "Data Naija" wordmark banner.
-///                            Used on the splash and onboarding screens.
+/// Both variants use the app mark supplied in the image assets.
 class AppLogo extends StatelessWidget {
   const AppLogo({
     super.key,
@@ -19,16 +14,13 @@ class AppLogo extends StatelessWidget {
   final double size;
   final LogoVariant variant;
 
-  static const String markAsset = 'assets/images/app_mark.png';
-  static const String lockupAsset = 'assets/images/app_logo.png';
+  static const String markAsset = 'assets/images/app_logo.jpg';
+  static const String lockupAsset = 'assets/images/app_logo.jpg';
 
   @override
   Widget build(BuildContext context) {
     final asset = variant == LogoVariant.lockup ? lockupAsset : markAsset;
 
-    // The source artwork is 1024 px wide. Decoding it at that size for a
-    // 32 px icon wastes memory and makes the first frame slow, so decode
-    // only what the screen can actually show.
     final cacheWidth = (size * MediaQuery.devicePixelRatioOf(context)).round();
 
     return Image.asset(

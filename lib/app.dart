@@ -84,7 +84,7 @@ class _DataNaijaAppState extends State<DataNaijaApp>
             accentIndex.clamp(0, kThemeAccentOptions.length - 1)];
 
         return MaterialApp(
-          title: 'DataNaija',
+          title: 'NaijaConnect',
           debugShowCheckedModeBanner: false,
           theme: buildTheme(accentColor: accentColor),
           initialRoute: AppRoutes.splash,

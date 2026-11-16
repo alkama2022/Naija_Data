@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Full brand lockup: app mark + "Data Naija" wordmark.
+            // Brand mark.
             const AppLogo(size: 190, variant: LogoVariant.lockup),
             const SizedBox(height: 16),
             const Text(
